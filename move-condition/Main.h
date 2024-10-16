@@ -59,7 +59,7 @@ GLdouble play_time = 0;
 //ŽÀŒ±‚Å‚æ‚­•Ï‚¦‚éƒpƒ‰ƒ[ƒ^
 /////////////////////////////////////////////////
 
-std::string name = "subtest";
+std::string name = "sub21";
 std::string fgroup = "move";
 std::string forder;
 int group;//1:move -> push 2:push -> move
