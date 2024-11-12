@@ -1,7 +1,7 @@
 ## 腕到達運動時の運動軌道計測システム
 
 ### 使用デバイス
-3Dsystems社のハプティックデバイスであるPhantom Premium 1.5HF
+3Dsystems社のハプティックデバイスであるPhantom Premium 1.5HF  
 <img src="figure/Phantom.JPG" width = 300>
 ### 実験時環境
 下図のようにディスプレイ下にハプティックデバイスを隠れるように置き，座った際にディスプレイによってデバイスの持ち手部分を見えないようにする．  
