@@ -236,3 +236,10 @@ bool Is_Setted(Mass* cursor, double x, double y); //セットできているか判定　セッ
 void Score(float y);
 void render_string(float x, float y, float z, const char* str);
 
+//WII BALANCE BOARD用関数
+void caluculate_center_of_pressure(wiimote_t* wm);
+
+//WIIMOTES用の変数
+
+float pocs[5];
+float poc;

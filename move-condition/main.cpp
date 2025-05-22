@@ -1,4 +1,9 @@
+
 #include "Main.h"
+extern "C" {
+	#include "wiiuse.h"
+}
+
 
 const int kMaxStepSizeMs = 10;
 double	mManualTimeStep = 0.01;
@@ -21,6 +26,12 @@ Mass* rightTarget = NULL;
 
 FILE* fp;
 
+const int MAX_WIIMOTES = 1;
+
+wiimote** wiimotes;
+wiimote* wm;
+
+
 
 //乱数生成について　http://vivi.dyndns.org/tech/cpp/random.html
 std::mt19937 mt(123456);            // メルセンヌ・ツイスタの32ビット版
@@ -28,6 +39,31 @@ std::mt19937 mt(123456);            // メルセンヌ・ツイスタの32ビット版
 
 int main(int argc, char** argv)
 {
+
+	wiimotes = wiiuse_init(MAX_WIIMOTES);
+
+	int found = wiiuse_find(wiimotes, MAX_WIIMOTES, 5);
+	if (!found) {
+		std::cout << "Wii Balance Boardが見つかりませんでした。" << std::endl;
+		return 0;
+	}
+
+	int connected = wiiuse_connect(wiimotes, MAX_WIIMOTES);
+	if (connected) {
+		std::cout << "Wii Balance Boardに接続しました。" << std::endl;
+	}
+	else {
+		std::cout << "Wii Balance Boardへの接続に失敗しました。" << std::endl;
+		return 0;
+	}
+
+	wm = wiimotes[0];
+
+
+	if (wm->exp.type == EXP_WII_BOARD) {
+		std::cout << "Wii Balance Board です。" << std::endl;
+	}
+
 	glutInit(&argc, argv);	//GLUTの初期化
 
 	//ディスプレイモードを設定（ダブルバッファ、RGB、デプスバッファ(Z)を加える）
@@ -58,12 +94,15 @@ int main(int argc, char** argv)
 	glutMainLoop();		//GLUTがイベント処理ループに入る
 	timeEndPeriod(1);
 
+	wiiuse_cleanup(wiimotes, 1);
+
 	return 0;
 
 }
 
 void startMenu()
 {
+	std::cout << "\n\n\n" << std::endl;
 	std::cout << "---------------Select Menu---------------" << std::endl;
 	std::cout << "This is MOVE condition trial." << std::endl;
 	std::cout << "Input num of Group:" << std::endl;
@@ -880,7 +919,18 @@ void Circle2DFill(float radius, double x, double y)
 
 
 void timer(int value) {
+	if (wiiuse_poll(wiimotes, MAX_WIIMOTES)) {
+		if (wm->event == WIIUSE_EVENT) {
+
+		}
+	}
+
+
+
 	if (mode == MODE_PLAY) {
+
+		std::cout << "Top Left: " << wm->exp.wb.br << std::endl;
+
 		if (phase != PRACTICE) {	
 			fprintf(fp, "%d,%d,%d,%d,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf\n",
 				trial + 1, success, rmode, success_num, play_time, leftcurrentForce[0], leftcurrentForce[1], leftcurrentForce[2], abs(leftcurrentPos[0] - lefthomeposition[0]), abs(leftcurrentPos[1] - lefthomeposition[1]), abs(leftcurrentPos[2] - lefthomeposition[2]), leftcurrentVelo[0], leftcurrentVelo[1], leftcurrentVelo[2],
@@ -983,6 +1033,7 @@ void timer(int value) {
 		else {
 			home_setted_time = 0;
 		}
+
 	}
 
 	/* ミリ秒後に再実行 */
@@ -1169,4 +1220,16 @@ void render_string(float x, float y, float z, const char* str) {
 	}
 }
 
+void calculate_center_of_pressure(wiimote_t* wm) {
+	float tl = wm->exp.wb.tl;
+	float tr = wm->exp.wb.tr;
+	float bl = wm->exp.wb.bl;
+	float br = wm->exp.wb.br;
+
+	float weight = tl + tr + bl + br;
+
+	float x = ((tr + br) - (tl + bl)) / weight;
+	float y = ((tl + tr) - (bl + br)) / weight;
+
+}
 
