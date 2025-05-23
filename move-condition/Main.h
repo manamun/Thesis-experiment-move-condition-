@@ -10,6 +10,8 @@
 #include <cmath>
 #include <assert.h>
 #include <iostream>
+#include <queue>
+#include <utility>
 
 #if defined(WIN32)
 #include <windows.h>
@@ -238,8 +240,17 @@ void render_string(float x, float y, float z, const char* str);
 
 //WII BALANCE BOARDópä÷êî
 void caluculate_center_of_pressure(wiimote_t* wm);
+float caluculate_baseline(std::queue<BalanceData*> BDQueue);
 
 //WIIMOTESópÇÃïœêî
 
 float pocs[5];
 float poc;
+
+class BalanceData {
+public:
+	std::pair <float, float> cop;
+	float weight;
+
+	BalanceData(float x, float y, float w) : cop(x, y), weight(w) {}
+};

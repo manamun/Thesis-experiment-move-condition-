@@ -27,9 +27,12 @@ Mass* rightTarget = NULL;
 FILE* fp;
 
 const int MAX_WIIMOTES = 1;
+const int MAX_QUEUE_SIZE = 5;
 
 wiimote** wiimotes;
 wiimote* wm;
+
+std::queue<BalanceData*> BDQueue;
 
 
 
@@ -919,13 +922,6 @@ void Circle2DFill(float radius, double x, double y)
 
 
 void timer(int value) {
-	if (wiiuse_poll(wiimotes, MAX_WIIMOTES)) {
-		if (wm->event == WIIUSE_EVENT) {
-
-		}
-	}
-
-
 
 	if (mode == MODE_PLAY) {
 
@@ -1008,6 +1004,33 @@ void timer(int value) {
 		else {
 			home_setted_time = 0;
 		}
+
+		if (wiiuse_poll(wiimotes, MAX_WIIMOTES)) {
+			if (wm->event == WIIUSE_EVENT) {
+				float tl = wm->exp.wb.tl;
+				float tr = wm->exp.wb.tr;
+				float bl = wm->exp.wb.bl;
+				float br = wm->exp.wb.br;
+
+				float weight = tl + tr + bl + br;
+				float x = ((tr + br) - (tl + bl)) / weight;
+				float y = ((tl + tr) - (bl + br)) / weight;
+
+
+				BalanceData* newdata = new BalanceData(x, y, weight);
+
+				if (BDQueue.size() >= MAX_QUEUE_SIZE) {
+					BalanceData* toDelete = BDQueue.front();
+					delete toDelete;
+					BDQueue.pop();
+					BDQueue.push(newdata);
+				}
+				else {
+					BDQueue.push(newdata);
+				}
+
+			}
+		}
 	}
 	if (mode == MODE_FIRST_SET) {
 		hlMakeCurrent(RighthHLRC);
@@ -1033,7 +1056,32 @@ void timer(int value) {
 		else {
 			home_setted_time = 0;
 		}
+		if (wiiuse_poll(wiimotes, MAX_WIIMOTES)) {
+			if (wm->event == WIIUSE_EVENT) {
+				float tl = wm->exp.wb.tl;
+				float tr = wm->exp.wb.tr;
+				float bl = wm->exp.wb.bl;
+				float br = wm->exp.wb.br;
 
+				float weight = tl + tr + bl + br;
+				float x = ((tr + br) - (tl + bl)) / weight;
+				float y = ((tl + tr) - (bl + br)) / weight;
+
+				
+				BalanceData* newdata = new BalanceData(x, y, weight);
+
+				if (BDQueue.size() >= MAX_QUEUE_SIZE) {
+					BalanceData* toDelete = BDQueue.front();
+					delete toDelete;
+					BDQueue.pop();
+					BDQueue.push(newdata);
+				}
+				else {
+					BDQueue.push(newdata);
+				}
+
+			}
+		}
 	}
 
 	/* ミリ秒後に再実行 */
@@ -1231,5 +1279,10 @@ void calculate_center_of_pressure(wiimote_t* wm) {
 	float x = ((tr + br) - (tl + bl)) / weight;
 	float y = ((tl + tr) - (bl + br)) / weight;
 
+}
+
+float calculate_baseline(std::queue<BalanceData*> BDQueue) {
+	//セット時5データを使用して、Baselineの計算を行う
+	return x, y;
 }
 
