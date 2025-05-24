@@ -33,6 +33,10 @@ wiimote** wiimotes;
 wiimote* wm;
 
 std::queue<BalanceData*> BDQueue;
+std::pair <float, float> Baseline_cop;
+
+float cop_x;
+float cop_y;
 
 
 
@@ -924,15 +928,33 @@ void Circle2DFill(float radius, double x, double y)
 void timer(int value) {
 
 	if (mode == MODE_PLAY) {
+		if (wiiuse_poll(wiimotes, MAX_WIIMOTES)) {
+			if (wm->event == WIIUSE_EVENT) {
+				float tl = wm->exp.wb.tl;
+				float tr = wm->exp.wb.tr;
+				float bl = wm->exp.wb.bl;
+				float br = wm->exp.wb.br;
 
-		std::cout << "Top Left: " << wm->exp.wb.br << std::endl;
+				float weight = tl + tr + bl + br;
+				cop_x = ((tr + br) - (tl + bl)) / weight;
+				cop_y = ((tl + tr) - (bl + br)) / weight;
+
+				cop_x = cop_x - Baseline_cop.first;
+				cop_y = cop_y - Baseline_cop.second;
+
+				std::cout << cop_x << cop_y << std::endl;
+				std::cout << weight << std::endl;
+				
+			}
+		}
 
 		if (phase != PRACTICE) {	
-			fprintf(fp, "%d,%d,%d,%d,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf\n",
+			fprintf(fp, "%d,%d,%d,%d,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf\n",
 				trial + 1, success, rmode, success_num, play_time, leftcurrentForce[0], leftcurrentForce[1], leftcurrentForce[2], abs(leftcurrentPos[0] - lefthomeposition[0]), abs(leftcurrentPos[1] - lefthomeposition[1]), abs(leftcurrentPos[2] - lefthomeposition[2]), leftcurrentVelo[0], leftcurrentVelo[1], leftcurrentVelo[2],
 				rightcurrentForce[0], rightcurrentForce[1], rightcurrentForce[2], abs(rightcurrentPos[0] - righthomeposition[0]), abs(rightcurrentPos[1] - righthomeposition[1]), abs(rightcurrentPos[2] - righthomeposition[2]), rightcurrentVelo[0], rightcurrentVelo[1], rightcurrentVelo[2],
-				lefthomeposition[0], lefthomeposition[1], lefthomeposition[2], righthomeposition[0], righthomeposition[1], righthomeposition[2]);
+				lefthomeposition[0], lefthomeposition[1], lefthomeposition[2], righthomeposition[0], righthomeposition[1], righthomeposition[2], cop_x, cop_y);
 		}
+		
 		play_time += timerTimeStep / 1000;
 		flagColor = false;
 		flagColor = Is_touched(rmode, rightTarget, RighthHLRC) && Is_touched(0, leftTarget, LefthHLRC);
@@ -974,6 +996,9 @@ void timer(int value) {
 			success = 3;
 			scoreflag = false;
 		}
+
+		Baseline_cop = calculate_baseline(BDQueue);
+
 
 		/* 画面を再描写 */
 		glutPostRedisplay();
@@ -1268,21 +1293,19 @@ void render_string(float x, float y, float z, const char* str) {
 	}
 }
 
-void calculate_center_of_pressure(wiimote_t* wm) {
-	float tl = wm->exp.wb.tl;
-	float tr = wm->exp.wb.tr;
-	float bl = wm->exp.wb.bl;
-	float br = wm->exp.wb.br;
-
-	float weight = tl + tr + bl + br;
-
-	float x = ((tr + br) - (tl + bl)) / weight;
-	float y = ((tl + tr) - (bl + br)) / weight;
-
-}
-
-float calculate_baseline(std::queue<BalanceData*> BDQueue) {
+std::pair <float, float> calculate_baseline(std::queue<BalanceData*> BDQueue) {
 	//セット時5データを使用して、Baselineの計算を行う
-	return x, y;
+	std::pair <float, float> total;
+	int size = BDQueue.size();
+	while (!BDQueue.empty()) {
+		total.first = total.first + BDQueue.front()->cop.first;
+		total.second = total.second + BDQueue.front()->cop.second;
+		BDQueue.pop();
+	}
+
+	total.first = total.first / size;
+	total.second = total.second / size;
+
+	return total;
 }
 
