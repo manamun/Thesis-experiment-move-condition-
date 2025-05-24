@@ -168,7 +168,7 @@ void startMenu()
 		std::cout << "Practice ŠJn\n";
 	}
 	if (trial == 0 && phase != PRACTICE) {
-		fprintf(fp, "trial_num,success,rmode,success_num,time,leftforce[0],leftforce[1],leftforce[2],leftposition[0],leftposition[1],leftposition[2],leftvelocity[0],leftvelocity[1],leftvelocity[2],rightforce[0],rightforce[1],rightforce[2],rightposition[0],rightposition[1],rightposition[2],rightvelocity[0],rightvelocity[1],rightvelocity[2],lefthomeposition[0],lefthomeposition[1],lefthomeposition[2],righthomeposition[0],righthomeposition[1],righthomeposition[2]\n");
+		fprintf(fp, "trial_num,success,rmode,success_num,time,leftforce[0],leftforce[1],leftforce[2],leftposition[0],leftposition[1],leftposition[2],leftvelocity[0],leftvelocity[1],leftvelocity[2],rightforce[0],rightforce[1],rightforce[2],rightposition[0],rightposition[1],rightposition[2],rightvelocity[0],rightvelocity[1],rightvelocity[2],lefthomeposition[0],lefthomeposition[1],lefthomeposition[2],righthomeposition[0],righthomeposition[1],righthomeposition[2],CoP_x,CoP_y\n");
 	}
 }
 

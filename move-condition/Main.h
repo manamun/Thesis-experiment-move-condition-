@@ -61,7 +61,7 @@ GLdouble play_time = 0;
 //実験でよく変えるパラメータ
 /////////////////////////////////////////////////
 
-std::string name = "sub21";
+std::string name = "subtest";
 std::string fgroup = "move";
 std::string forder;
 int group;//1:move -> push 2:push -> move
@@ -88,7 +88,7 @@ int trial = 0; //バグによって途中から始めるとき用
 #define SHIFT_Y 9 //プレースペースを作るためのプロキシ移動量
 #define SHIFT_Z 3 //プレースペースを作るためのプロキシ移動量
 
-#define TRIAL 120 //トライアル数 LP:120, CT:100, WO:10
+#define TRIAL 10 //トライアル数 LP:120, CT:100, WO:10
 #define TRIAL_TIME 1.0 //1トライアルの制限時間
 #define FIRST_SET_KEEP_TIME 2 //MODE_FIRST_SETでのキープ時間
 #define SET_KEEP_TIME 2 //MODE_SETでのホームポジションへのキープ時間
